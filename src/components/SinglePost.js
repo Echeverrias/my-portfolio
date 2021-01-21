@@ -4,10 +4,22 @@ import {useParams} from 'react-router-dom';
 import './SinglePost.css';
 import imageUrlBuilder from '@sanity/image-url' ;
 import BlockContent from "@sanity/block-content-to-react";
+import getYouTubeID from 'get-youtube-id';
+import YouTube from 'react-youtube';
 
 const builder = imageUrlBuilder(sanityClient);
 function urlFor(source){
     return builder.image(source)
+}
+
+const serializers = {
+    types: {
+      youtube: ({node}) => {
+        const { url } = node
+        const id = getYouTubeID(url)
+        return (<YouTube videoId={id} />)
+      }
+    }
 }
 
 function SinglePost(){
@@ -39,7 +51,12 @@ function SinglePost(){
         .catch(console.error);
     }, [slug])
 
-    if(!singlePost) return <div className="flex justify-center pt-20 lg:pt-40">Loading...</div>;
+    if(!singlePost){
+        return <div className="flex justify-center pt-20 lg:pt-40">Loading...</div>
+    }else{
+        console.log(singlePost);
+        console.log(singlePost.body);
+    }    
 
     return (
             <div className='singlePost'>
@@ -76,6 +93,7 @@ function SinglePost(){
                                 blocks={singlePost.body}
                                 projectId="yom18al6"
                                 dataset="production"
+                                serializers={serializers}
                             />
                         </div>
                     </article>
